@@ -1,19 +1,19 @@
 import datetime as dt
 
-salas = {"Alfa":10, "Beta":15, "Gamma":5, "Delta":10, "Epsilon":15} # Cinco salas iniciales
+salas = {1:("Alfa", 10), 2:("Beta", 15), 3:("Gamma", 5)} # Tres salas iniciales
 clientes = {}
 reservaciones = {}
 
 def agregarCliente():
     while True:
         nombre = input("Ingresa el nombre: ")
-        if nombre == "":
+        if nombre == "" or nombre.strip() == "":
             print("El nombre no puede estar vacio.")
             continue
         break
     while True:
         apellidos = input("Ingresa los apellidos: ")
-        if apellidos == "":
+        if apellidos == "" or apellidos.strip() == "":
             print("Los apellidos no pueden estar vacios.")
             continue
         break
@@ -67,18 +67,22 @@ def reservarSala():
     while True:
         print(f"\nSalas disponibles y cupo:")
         print("*"*30)
-        print(f"Sala\t\t\tCupo")
-        for sala, cupo in salas.items():
-            print(f"{sala}\t\t\t{cupo}")
+        print(f"Clave\tNombre\tCupo")
+        for clave, datos in salas.items():
+            print(f"{clave}\t{datos[0]}\t{datos[1]}")
         print("*"*30)
-        salaAgendada = input("Ingresa el nombre de la sala a agendar: ")
-        if salaAgendada not in salas.keys() or salaAgendada == "":
+        try:
+            salaAgendada = int(input("Ingresa la clave de la sala a agendar: "))
+        except ValueError:
+            print("Clave no valida.")
+            continue
+        if salaAgendada not in salas.keys():
             print("La sala no existe.")
             continue
         break
     while True:
         nombreEvento = input("Ingresa el nombre del evento: ")
-        if nombreEvento == "":
+        if nombreEvento == "" or nombreEvento.strip() == "":
             print("El nombre del evento no puede estar vacio.")
             continue
         break
@@ -87,5 +91,24 @@ def reservarSala():
 def mostrarReservaciones():
     pass
 
+def registrarSala():
+    while True:
+        nombreSala = input("Ingresa el nombre de la sala: ")
+        if nombreSala == "" or nombreSala.strip() == "":
+            print("El nombre no puede estar vacio.")
+            continue
+        break
+    while True:
+        try:
+            cupoSala = int(input("Ingresa el cupo de la sala: "))
+        except ValueError:
+            print("El valor ingresado no es valido. Debe ser un entero.")
+            continue
+        break
+    if salas:
+        siguienteSala = max(salas.keys()) + 1
+        salas.update({siguienteSala:[nombreSala, cupoSala]})
+
 agregarCliente()
+registrarSala()
 reservarSala()
