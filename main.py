@@ -42,13 +42,13 @@ def reservarSala():
         mostrarClientes()
         try:
             claveCliente = int(input("Ingresa tu clave de cliente: "))
-        except:
+        except ValueError:
             print("⚠︎ Clave no valida.")
             continue
         if claveCliente not in clientes.keys():
             print("⚠︎ La clave de cliente no existe.")
-            opcionCancelar = input("Cancelar operacion? (Y/N)")
-            if opcionCancelar.upper() == "Y":
+            opcionCancelar = input("Cancelar operacion? (S/N)")
+            if opcionCancelar.upper() == "S":
                 menu()
             elif opcionCancelar.upper() == "N":
                 continue
@@ -62,41 +62,48 @@ def reservarSala():
         fecha_string = input("Ingresa la fecha a agendar (dd/mm/aaaa): ")
         try:
             fechaAgendada = dt.datetime.strptime(fecha_string, "%d/%m/%Y")
-        except:
+        except ValueError:
             print("⚠︎ Fecha no valida.")
             continue
-        if fechaAgendada >= hoy + timedelta(days=2):
+        if fechaAgendada >= (hoy + timedelta(days=2)):
             break
         else:
             print("ⓘ La reservacion tiene que ser hecha con 2 (dos) dias de anticipacion como minimo.")
             continue
+    todosTurnos = {"M", "V", "N"}
+    disponibilidad = {}
+    for claveSala in salas.keys():
+        disponibilidad.update({claveSala:set(todosTurnos)})
+
+    for fecha, turno, sala, *_ in reservaciones.values():
+        if fecha == fechaAgendada:
+            disponibilidad[sala].discard(turno)
     while True:
-        turno = input("Elige el turno a agendar (M - Matutino, V - Vespertino, N - Nocturno): ")
-        if turno.upper() == "M":
-            turnoAgendado = "M"
-        elif turno.upper() == "V":
-            turnoAgendado = "V"
-        elif turno.upper() == "N":
-            turnoAgendado = "N"
-        else:
-            print("⚠︎ Turno no valido.")
-            continue
-        break
-    while True:
-        print(f"\nSalas disponibles y cupo:")
-        print("*"*30)
-        print(f"Clave\tNombre\tCupo")
-        for clave, datos in salas.items():
-            print(f"{clave}\t{datos[0]}\t{datos[1]}")
-        print("*"*30)
+        print(f"\nSALAS DISPONIBLES Y TURNOS EL {fechaAgendada.strftime("%d %b %Y")}:")
+        print("*"*50)
+        print("Clave\tNombre\tCupo\tTurnos disponibles")
+        for clave, (nombre, cupo) in salas.items():
+            turnosLibres = ", ".join(sorted(disponibilidad[clave]))
+            print(f"{clave}\t{nombre}\t{cupo}\t{turnosLibres}")
+        print("*"*50)
         try:
             salaAgendada = int(input("Ingresa la clave de la sala a agendar: "))
-        except ValueError:
+        except:
             print("⚠︎ Clave no valida.")
             continue
         if salaAgendada not in salas.keys():
             print("ⓘ La sala no existe.")
             continue
+        if not disponibilidad[salaAgendada]:
+            print("ⓘ Esta sala no tiene turnos disponibles en la fecha seleccionada.")
+            continue
+        break
+    while True:
+        turno = input("Elige el turno a agendar (M - matutino, V - vespertino, N - nocturno): ")
+        if turno.upper() not in disponibilidad[salaAgendada]:
+            print("⚠︎ Turno no disponible para esta sala.")
+            continue
+        turnoAgendado = turno.upper()
         break
     while True:
         nombreEvento = input("Ingresa el nombre del evento: ")
@@ -104,7 +111,12 @@ def reservarSala():
             print("ⓘ El nombre del evento no puede estar vacio.")
             continue
         break
-    reservaciones.update({fechaAgendada:[{turnoAgendado:{salaAgendada:[clienteAgendado, nombreEvento]}}]})
+
+    if reservaciones:
+        siguienteClaveEvento = max(reservaciones.keys()) + 1
+        reservaciones.update({siguienteClaveEvento:[fechaAgendada, turnoAgendado, salaAgendada, clienteAgendado, nombreEvento]})
+    else:
+        reservaciones.update({1000:[fechaAgendada, turnoAgendado, salaAgendada, clienteAgendado, nombreEvento]})
     print("✓ La reservacion fue registrada con exito.\n")
 
 def consultarReservaciones():
@@ -126,15 +138,58 @@ def registrarSala():
         break
     if salas:
         siguienteSala = max(salas.keys()) + 1
-        salas.update({siguienteSala:[nombreSala, cupoSala]})
+        salas.update({siguienteSala:(nombreSala, cupoSala)})
     print("✓ La sala fue registrada con exito.\n")
 
 def editarEvento():
-    pass
+    if not reservaciones:
+        print("ⓘ No hay reservaciones registradas.")
+        return
+    print("Para editar el nombre de un evento existente, ingresa el rango de fechas (dd/mm/aaaa) en el que se encuentra agendado el evento que quieres editar.")
+    while True:
+        inicioRango_string = input("Del: ")
+        finRango_string = input("Al: ")
+        try:
+            inicioRango = dt.datetime.strptime(inicioRango_string, "%d/%m/%Y")
+            finRango = dt.datetime.strptime(finRango_string, "%d/%m/%Y")
+        except:
+            print("⚠︎ Fecha invalida.")
+            continue
+
+        rangoFiltrado = {}
+        for llave, valor in reservaciones.items():
+            if inicioRango <= valor[0] <= finRango:
+                rangoFiltrado.update({llave:valor})
+        break
+    print(f"\nEVENTOS AGENDADOS ENTRE EL {inicioRango.strftime("%d %b %Y")} Y EL {finRango.strftime("%d %b %Y")}:")
+    print("*"*50)
+    print(f"Clave\tFecha\t\tNombre\t\tTurno\tSala")
+    for idEvento, datos in rangoFiltrado.items():
+        fecha, turno, sala, cliente, nombreEvento = datos
+        print(f"{idEvento}\t{fecha.strftime('%d/%m/%Y')}\t{nombreEvento}\t{turno}\t{sala} '{salas.get(sala)[0]}'")
+    print("*"*50)
+    while True:
+        try:
+            eventoEditando = int(input("\nIngresa la clave del evento que deseas renombrar: "))
+        except ValueError:
+            print("⚠︎ Clave inválida.")
+            continue
+        if eventoEditando not in rangoFiltrado.keys():
+            print("ⓘ Este evento no existe en el rango de fechas.")
+            continue
+        break
+    while True:
+        nuevoNombre = input("Ingresa el nuevo nombre para el evento: ")
+        if nuevoNombre == "" or nuevoNombre.strip() == "":
+            print("ⓘ El nombre no puede estar vacío.")
+            continue
+        break
+    reservaciones[eventoEditando][4] = nuevoNombre
+    print(f"✓ El nombre del evento con clave {eventoEditando} fue editado a '{nuevoNombre}' exitosamente.\n")
 
 def menu():
     while True:
-        print("*"*30)
+        print("*"*50)
         print("SISTEMA DE RESERVA DE SALAS PARA COWORKING")
         print("\nSelecciona una opcion para continuar:")
         print("(a) Reservar una sala")
@@ -143,6 +198,7 @@ def menu():
         print("(d) Registrar nuevo cliente")
         print("(e) Registrar nueva sala")
         print("(f) Salir\n")
+        print("*"*50)
         opcion = input()
         if opcion.lower() == "a":
             reservarSala()
