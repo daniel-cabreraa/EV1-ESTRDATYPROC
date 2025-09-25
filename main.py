@@ -10,13 +10,13 @@ def agregarCliente():
     while True:
         nombre = input("Ingresa el nombre: ")
         if nombre == "" or nombre.strip() == "":
-            print("ⓘ El nombre no puede estar vacio.")
+            print("ⓘ El nombre no puede estar vacío.")
             continue
         break
     while True:
         apellidos = input("Ingresa los apellidos: ")
         if apellidos == "" or apellidos.strip() == "":
-            print("ⓘ Los apellidos no pueden estar vacios.")
+            print("ⓘ Los apellidos no pueden estar vacíos.")
             continue
         break
     if clientes:
@@ -24,7 +24,7 @@ def agregarCliente():
         clientes.update({siguienteClave:[nombre, apellidos]})
     else:
         clientes.update({100:[nombre, apellidos]})
-    print("✓ Cliente agregado con exito.\n")
+    print("✓ Cliente agregado con éxito.\n")
 
 def mostrarClientes():
     print("\nClientes registrados:")
@@ -43,17 +43,17 @@ def reservarSala():
         try:
             claveCliente = int(input("Ingresa tu clave de cliente: "))
         except ValueError:
-            print("⚠︎ Clave no valida.")
+            print("⚠︎ Clave inválida.")
             continue
         if claveCliente not in clientes.keys():
             print("⚠︎ La clave de cliente no existe.")
-            opcionCancelar = input("Cancelar operacion? (S/N)")
+            opcionCancelar = input("¿Cancelar operacion? (S - sí/N - no)")
             if opcionCancelar.upper() == "S":
                 menu()
             elif opcionCancelar.upper() == "N":
                 continue
             else:
-                print("⚠︎ Opcion no reconocida.")
+                print("⚠︎ Opción no reconocida.")
                 continue
         else:
             clienteAgendado = claveCliente
@@ -63,12 +63,12 @@ def reservarSala():
         try:
             fechaAgendada = dt.datetime.strptime(fecha_string, "%d/%m/%Y")
         except ValueError:
-            print("⚠︎ Fecha no valida.")
+            print("⚠︎ Fecha inválida.")
             continue
         if fechaAgendada >= (hoy + timedelta(days=2)):
             break
         else:
-            print("ⓘ La reservacion tiene que ser hecha con 2 (dos) dias de anticipacion como minimo.")
+            print("ⓘ La reservación tiene que ser hecha con 2 (dos) días de anticipación como mínimo.")
             continue
     todosTurnos = {"M", "V", "N"}
     disponibilidad = {}
@@ -89,7 +89,7 @@ def reservarSala():
         try:
             salaAgendada = int(input("Ingresa la clave de la sala a agendar: "))
         except:
-            print("⚠︎ Clave no valida.")
+            print("⚠︎ Clave inválida.")
             continue
         if salaAgendada not in salas.keys():
             print("ⓘ La sala no existe.")
@@ -108,7 +108,7 @@ def reservarSala():
     while True:
         nombreEvento = input("Ingresa el nombre del evento: ")
         if nombreEvento == "" or nombreEvento.strip() == "":
-            print("ⓘ El nombre del evento no puede estar vacio.")
+            print("ⓘ El nombre del evento no puede estar vacío.")
             continue
         break
 
@@ -117,7 +117,7 @@ def reservarSala():
         reservaciones.update({siguienteClaveEvento:[fechaAgendada, turnoAgendado, salaAgendada, clienteAgendado, nombreEvento]})
     else:
         reservaciones.update({1000:[fechaAgendada, turnoAgendado, salaAgendada, clienteAgendado, nombreEvento]})
-    print("✓ La reservacion fue registrada con exito.\n")
+    print("✓ La reservación fue registrada con éxito.\n")
 
 def consultarReservaciones():
     print(reservaciones)
@@ -126,20 +126,20 @@ def registrarSala():
     while True:
         nombreSala = input("Ingresa el nombre de la sala: ")
         if nombreSala == "" or nombreSala.strip() == "":
-            print("ⓘ El nombre no puede estar vacio.")
+            print("ⓘ El nombre no puede estar vacío.")
             continue
         break
     while True:
         try:
             cupoSala = int(input("Ingresa el cupo de la sala: "))
         except ValueError:
-            print("ⓘ El valor ingresado no es valido. Debe ser un entero.")
+            print("ⓘ El valor ingresado no es válido. Debe ser un entero.")
             continue
         break
     if salas:
         siguienteSala = max(salas.keys()) + 1
         salas.update({siguienteSala:(nombreSala, cupoSala)})
-    print("✓ La sala fue registrada con exito.\n")
+    print("✓ La sala fue registrada con éxito.\n")
 
 def editarEvento():
     if not reservaciones:
@@ -153,7 +153,7 @@ def editarEvento():
             inicioRango = dt.datetime.strptime(inicioRango_string, "%d/%m/%Y")
             finRango = dt.datetime.strptime(finRango_string, "%d/%m/%Y")
         except:
-            print("⚠︎ Fecha invalida.")
+            print("⚠︎ Fecha inválida.")
             continue
 
         rangoFiltrado = {}
@@ -161,7 +161,7 @@ def editarEvento():
             if inicioRango <= valor[0] <= finRango:
                 rangoFiltrado.update({llave:valor})
         break
-    print(f"\nEVENTOS AGENDADOS ENTRE EL {inicioRango.strftime("%d %b %Y")} Y EL {finRango.strftime("%d %b %Y")}:")
+    print(f"\nEVENTOS REGISTRADOS ENTRE EL {inicioRango.strftime("%d %b %Y")} Y EL {finRango.strftime("%d %b %Y")}:")
     print("*"*50)
     print(f"Clave\tFecha\t\tNombre\t\tTurno\tSala")
     for idEvento, datos in rangoFiltrado.items():
@@ -191,9 +191,9 @@ def menu():
     while True:
         print("*"*50)
         print("SISTEMA DE RESERVA DE SALAS PARA COWORKING")
-        print("\nSelecciona una opcion para continuar:")
+        print("\nSelecciona una opción para continuar:")
         print("(a) Reservar una sala")
-        print("(b) Editar el nombre de una reservacion")
+        print("(b) Editar el nombre de una reservación")
         print("(c) Consultar reservaciones")
         print("(d) Registrar nuevo cliente")
         print("(e) Registrar nueva sala")
@@ -219,7 +219,7 @@ def menu():
             print("Saliendo...")
             break
         else:
-            print("⚠︎ Opcion no reconocida.")
+            print("⚠︎ Opción no reconocida.")
             continue
 
 menu()
