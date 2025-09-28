@@ -36,7 +36,7 @@ def mostrarClientes():
 
 def reservarSala():
     if not clientes:
-        print("⚠︎ No hay clientes registrados. Agrega uno ahora:")
+        print("ⓘ No hay clientes registrados. Agrega uno ahora:")
         agregarCliente()
     while True:
         mostrarClientes()
@@ -47,7 +47,7 @@ def reservarSala():
             continue
         if claveCliente not in clientes.keys():
             print("⚠︎ La clave de cliente no existe.")
-            opcionCancelar = input("¿Cancelar operacion? (S - sí/N - no)")
+            opcionCancelar = input("¿Cancelar operacion? (S - sí/N - no) ")
             if opcionCancelar.upper() == "S":
                 menu()
             elif opcionCancelar.upper() == "N":
@@ -120,7 +120,33 @@ def reservarSala():
     print("✓ La reservación fue registrada con éxito.\n")
 
 def consultarReservaciones():
-    print(reservaciones)
+    if not reservaciones:
+        print("ⓘ No hay reservaciones. Registra una ahora:")
+        reservarSala()
+    print("Para consultar una reservación, ingresa la fecha (dd/mm/aaaa) bajo la que fue agendada.")
+    while True:
+        fechaConsultada_string = input("Fecha a consultar: ")
+        try:
+            fechaConsultada = dt.datetime.strptime(fechaConsultada_string, "%d/%m/%Y")
+        except:
+            print("⚠︎ Fecha inválida.")
+            continue
+        break
+    consultas = {}
+    for llave, valor in reservaciones.items():
+        if valor[0] == fechaConsultada:
+            consultas.update({llave:valor})
+    print("\n")
+    print("*"*70)
+    print(f"REPORTE DE RESERVACIONES PARA EL DIA {fechaConsultada.strftime('%d %b %Y')}")
+    print("*"*70)
+    print(f"{'SALA':<10}{'CLIENTE':<20}{'EVENTO':<25}{'TURNO':<10}")
+    print("-"*70)
+    for claveEvento, detalles in consultas.items():
+        fechaAgendada, turnoAgendado, salaAgendada, clienteAgendado, nombreEvento = detalles
+        print(f"{salaAgendada:<10}{clienteAgendado:<20}{nombreEvento:<25}{turnoAgendado:<10}")
+    print("*" * 70)
+    print("\n")
 
 def registrarSala():
     while True:
